@@ -65,6 +65,38 @@ const applySlackStatusOptions = () => {
 
 }
 
+const applyReminderOptions = () => {
+  const reminderEnabled = document.getElementById('reminderEnabled').checked,
+        reminderClockInTime = document.getElementById('reminderClockInTime').value,
+        reminderClockOutTime = document.getElementById('reminderClockOutTime').value;
+
+  chrome.storage.sync.set({
+    reminderEnabled: reminderEnabled,
+    reminderClockInTime: reminderClockInTime,
+    reminderClockOutTime: reminderClockOutTime
+  }, () => {
+    const button = document.getElementById('reminderApply');
+    button.classList.add("is-loading")
+    setTimeout(() => {
+      button.classList.remove("is-loading")
+    }, 750);
+  });
+
+  if(!reminderEnabled){
+    alert('有効にするチェックが入っていません。');
+  }
+}
+
+const testReminder = () => {
+  chrome.notifications.create('reminderTest', {
+    type: 'basic',
+    iconUrl: 'icons/icon128.png',
+    title: 'Myレコーダーアシスタント',
+    message: 'これはテスト通知です。打刻リマインダーが正しく動作しています。',
+    priority: 2
+  });
+}
+
 const restoreOptions = () => {
   chrome.storage.sync.get([
     "debuggable",
@@ -89,6 +121,11 @@ const restoreOptions = () => {
     "slackTakeABreakStatusEmoji",
     "slackTakeABreakStatusText",
     "slackStatusToken",
+
+    // Reminder
+    "reminderEnabled",
+    "reminderClockInTime",
+    "reminderClockOutTime",
 
     // KING OF TIME Domain
     "s2Selected",
@@ -121,6 +158,10 @@ const restoreOptions = () => {
     document.getElementById('slackTakeABreakStatusEmoji').value = items.slackTakeABreakStatusEmoji ? items.slackTakeABreakStatusEmoji: "";
     document.getElementById('slackTakeABreakStatusText').value = items.slackTakeABreakStatusText ? items.slackTakeABreakStatusText: "";
     document.getElementById('slackStatusToken').value = items.slackStatusToken ? items.slackStatusToken: "";
+
+    document.getElementById('reminderEnabled').checked = items.reminderEnabled;
+    document.getElementById('reminderClockInTime').value = items.reminderClockInTime ? items.reminderClockInTime : "09:00";
+    document.getElementById('reminderClockOutTime').value = items.reminderClockOutTime ? items.reminderClockOutTime : "18:00";
 
     document.getElementById('s2Selected').checked = items.s2Selected || (!items.s3Selected && !items.s4Selected);
     document.getElementById('s3Selected').checked = items.s3Selected;
@@ -253,6 +294,9 @@ document.getElementById('openInNewTabSelected').addEventListener('change', () =>
   chrome.storage.sync.set({openInNewTab: true});
   chrome.action.setPopup({ popup: '' });
 });
+
+document.getElementById('reminderApply').addEventListener('click', applyReminderOptions);
+document.getElementById('reminderTest').addEventListener('click', testReminder);
 
 document.getElementById('debuggable').addEventListener('click', () => {
   chrome.storage.sync.set({debuggable: document.getElementById('debuggable').checked});

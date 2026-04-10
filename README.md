@@ -5,6 +5,22 @@ https://chrome.google.com/webstore/detail/pifbdpooppfkllaiobkaoeocbfmpabaj/
 
 勤怠管理システム「[Myレコーダー | KING OF TIME](https://kingoftime.jp/record/myrecorder/)」を快適に使えるようにするためのChrome拡張です。
 
+## ローカルインストール手順
+
+Chromeウェブストアからインストールする以外に、ソースコードから直接インストールすることもできます。
+
+1. このリポジトリをクローンまたはダウンロードします。
+   ```
+   git clone https://github.com/danishi/kot-chrome-assistant.git
+   ```
+2. Chromeで `chrome://extensions` を開きます。
+3. 右上の「デベロッパーモード」を有効にします。
+4. 「パッケージ化されていない拡張機能を読み込む」をクリックします。
+5. クローンしたリポジトリのフォルダを選択します。
+6. 拡張機能が一覧に表示されればインストール完了です。
+
+> **注意**: ソースコードを更新した場合は、`chrome://extensions` で拡張機能の「更新」ボタン（リロードアイコン）をクリックしてください。
+
 ## ブラウザの専用ボタンからポップアップ表示
 ブックマークからMyレコーダーページを開くことすら面倒な人向けに、ポップアップ表示して、素早く出勤や退勤できるようにします。
 ![Browser Action](docs/images/browser-action.png)
@@ -26,6 +42,13 @@ https://chrome.google.com/webstore/detail/pifbdpooppfkllaiobkaoeocbfmpabaj/
 
 - 出勤ボタン押下時に「:office: 仕事中」
 - 退勤ボタン押下時に「:house: プライベートタイム」
+
+## 打刻リマインダー通知
+設定画面で始業時刻・終業時刻をセットすると、指定した時刻にブラウザのポップアップ通知で打刻をリマインドします。  
+通知をクリックするとMyレコーダーページが開きます。
+
+- 始業時刻に「出勤打刻の時間です。」
+- 終業時刻に「退勤打刻の時間です。」
 
 ## Contributors ✨
 

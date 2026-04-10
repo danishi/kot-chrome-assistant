@@ -1,3 +1,85 @@
+// --- 打刻リマインダー ---
+const ALARM_CLOCK_IN = 'reminderClockIn';
+const ALARM_CLOCK_OUT = 'reminderClockOut';
+
+const setupReminders = () => {
+  chrome.storage.sync.get([
+    'reminderEnabled',
+    'reminderClockInTime',
+    'reminderClockOutTime'
+  ], (items) => {
+    // 既存のアラームをクリア
+    chrome.alarms.clear(ALARM_CLOCK_IN);
+    chrome.alarms.clear(ALARM_CLOCK_OUT);
+
+    if (!items.reminderEnabled) return;
+
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    if (items.reminderClockInTime) {
+      const [h, m] = items.reminderClockInTime.split(':').map(Number);
+      const clockInDate = new Date(today.getTime() + h * 3600000 + m * 60000);
+      // 既に過ぎていたら翌日にセット
+      if (clockInDate <= now) {
+        clockInDate.setDate(clockInDate.getDate() + 1);
+      }
+      chrome.alarms.create(ALARM_CLOCK_IN, { when: clockInDate.getTime(), periodInMinutes: 1440 });
+    }
+
+    if (items.reminderClockOutTime) {
+      const [h, m] = items.reminderClockOutTime.split(':').map(Number);
+      const clockOutDate = new Date(today.getTime() + h * 3600000 + m * 60000);
+      if (clockOutDate <= now) {
+        clockOutDate.setDate(clockOutDate.getDate() + 1);
+      }
+      chrome.alarms.create(ALARM_CLOCK_OUT, { when: clockOutDate.getTime(), periodInMinutes: 1440 });
+    }
+  });
+};
+
+chrome.alarms.onAlarm.addListener((alarm) => {
+  if (alarm.name === ALARM_CLOCK_IN) {
+    chrome.notifications.create(ALARM_CLOCK_IN, {
+      type: 'basic',
+      iconUrl: 'icons/icon128.png',
+      title: 'Myレコーダーアシスタント',
+      message: '出勤打刻の時間です。',
+      priority: 2
+    });
+  } else if (alarm.name === ALARM_CLOCK_OUT) {
+    chrome.notifications.create(ALARM_CLOCK_OUT, {
+      type: 'basic',
+      iconUrl: 'icons/icon128.png',
+      title: 'Myレコーダーアシスタント',
+      message: '退勤打刻の時間です。',
+      priority: 2
+    });
+  }
+});
+
+// 通知クリック時にMyレコーダーを開く
+chrome.notifications.onClicked.addListener((notificationId) => {
+  if (notificationId === ALARM_CLOCK_IN || notificationId === ALARM_CLOCK_OUT) {
+    chrome.storage.sync.get(['s3Selected', 's4Selected', 'samlSelected'], (items) => {
+      let subdomain = 's2';
+      if (items.s3Selected) subdomain = 's3';
+      else if (items.s4Selected) subdomain = 's4';
+      const recorder = items.samlSelected ? 'recorder2' : 'recorder';
+      const url = `https://${subdomain}.ta.kingoftime.jp/independent/${recorder}/personal/`;
+      chrome.tabs.create({ url });
+    });
+    chrome.notifications.clear(notificationId);
+  }
+});
+
+// 設定変更時にアラームを再セットアップ
+chrome.storage.onChanged.addListener((changes, areaName) => {
+  if (areaName === 'sync' && (changes.reminderEnabled || changes.reminderClockInTime || changes.reminderClockOutTime)) {
+    setupReminders();
+  }
+});
+
 const postRequest = (endpoint, headers, body, sendResponse) => {
   fetch(endpoint, {
     'method': 'POST',
@@ -57,12 +139,14 @@ chrome.runtime.onInstalled.addListener(function () {
   chrome.storage.sync.get('openInNewTab', function (data) {
     setPopup(!data.openInNewTab);
   });
+  setupReminders();
 });
 
 chrome.runtime.onStartup.addListener(function () {
   chrome.storage.sync.get('openInNewTab', function (data) {
     setPopup(!data.openInNewTab);
   });
+  setupReminders();
 });
 
 chrome.action.onClicked.addListener(function () {

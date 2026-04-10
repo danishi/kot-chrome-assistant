@@ -21,7 +21,9 @@
     "storage",
     "declarativeNetRequest",
     "declarativeNetRequestFeedback",
-    "tabs"
+    "tabs",
+    "alarms",
+    "notifications"
   ],
   "declarative_net_request": {
     "rule_resources": [{

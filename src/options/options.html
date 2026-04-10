@@ -26,6 +26,7 @@
                     <p class="menu-label">サービス連携</p>
                     <ul class="menu-list">
                         <li><a href="#" class="is-active">Slack通知</a></li>
+                        <li><a href="#reminder-settings">打刻リマインダー</a></li>
                         <li><a href="#domain-settings">KING OF TIMEドメイン</a></li>
                     </ul>
                 </aside>
@@ -324,6 +325,64 @@
                     </div>
                     </div>
 
+
+                </div>
+
+                <h4>打刻リマインダー</h4>
+                <div id="reminder-settings" class="box">
+
+                    <div class="field is-horizontal">
+                    <div class="field-label is-normal">
+                        <label class="checkbox">
+                            <input id="reminderEnabled" type="checkbox">有効にする
+                        </label>
+                    </div>
+                    <div class="field-body">
+                        <!-- right empty for spacing -->
+                    </div>
+                    </div>
+
+                    <div class="field is-horizontal">
+                    <div class="field-label is-normal">
+                        <label class="label">始業時刻</label>
+                    </div>
+                    <div class="field-body">
+                        <div class="field">
+                        <div class="control">
+                            <input id="reminderClockInTime" class="input" type="time" value="09:00">
+                        </div>
+                        <p class="help">指定した時刻にブラウザ通知で出勤打刻をリマインドします。</p>
+                        </div>
+                    </div>
+                    </div>
+
+                    <div class="field is-horizontal">
+                    <div class="field-label is-normal">
+                        <label class="label">終業時刻</label>
+                    </div>
+                    <div class="field-body">
+                        <div class="field">
+                        <div class="control">
+                            <input id="reminderClockOutTime" class="input" type="time" value="18:00">
+                        </div>
+                        <p class="help">指定した時刻にブラウザ通知で退勤打刻をリマインドします。</p>
+                        </div>
+                    </div>
+                    </div>
+
+                    <div class="field is-horizontal">
+                    <div class="field-label">
+                        <!-- Left empty for spacing -->
+                    </div>
+                    <div class="field-body">
+                        <div class="field">
+                        <div class="control">
+                            <a id="reminderApply" class="button is-link">適用</a>
+                            <a id="reminderTest" class="button">テスト通知</a>
+                        </div>
+                        </div>
+                    </div>
+                    </div>
 
                 </div>
 
