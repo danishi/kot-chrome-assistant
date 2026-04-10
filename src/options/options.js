@@ -88,13 +88,7 @@ const applyReminderOptions = () => {
 }
 
 const testReminder = () => {
-  chrome.notifications.create('reminderTest', {
-    type: 'basic',
-    iconUrl: 'icons/icon128.png',
-    title: 'Myレコーダーアシスタント',
-    message: 'これはテスト通知です。打刻リマインダーが正しく動作しています。',
-    priority: 2
-  });
+  chrome.runtime.sendMessage({ contentScriptQuery: 'testReminder' });
 }
 
 const restoreOptions = () => {

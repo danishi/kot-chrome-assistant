@@ -38,23 +38,21 @@ const setupReminders = () => {
   });
 };
 
+const showNotification = (id, message) => {
+  chrome.notifications.create(id, {
+    type: 'basic',
+    iconUrl: chrome.runtime.getURL('icons/icon128.png'),
+    title: 'Myレコーダーアシスタント',
+    message: message,
+    priority: 2
+  });
+};
+
 chrome.alarms.onAlarm.addListener((alarm) => {
   if (alarm.name === ALARM_CLOCK_IN) {
-    chrome.notifications.create(ALARM_CLOCK_IN, {
-      type: 'basic',
-      iconUrl: 'icons/icon128.png',
-      title: 'Myレコーダーアシスタント',
-      message: '出勤打刻の時間です。',
-      priority: 2
-    });
+    showNotification(ALARM_CLOCK_IN, '出勤打刻の時間です。');
   } else if (alarm.name === ALARM_CLOCK_OUT) {
-    chrome.notifications.create(ALARM_CLOCK_OUT, {
-      type: 'basic',
-      iconUrl: 'icons/icon128.png',
-      title: 'Myレコーダーアシスタント',
-      message: '退勤打刻の時間です。',
-      priority: 2
-    });
+    showNotification(ALARM_CLOCK_OUT, '退勤打刻の時間です。');
   }
 });
 
@@ -117,6 +115,12 @@ const setPopup = (enabled) => {
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (!msg) {
     sendResponse({ 'status': 'listener is missing.\n' + msg });
+    return true;
+  }
+
+  if (msg.contentScriptQuery === 'testReminder') {
+    showNotification('reminderTest', 'これはテスト通知です。打刻リマインダーが正しく動作しています。');
+    sendResponse({ 'status': 'success' });
     return true;
   }
 
