@@ -1,5 +1,8 @@
 let myrecUrl = "https://s2.ta.kingoftime.jp/independent/recorder/personal/";
 
+// ポップアップ表示時にバッジをクリア
+chrome.action.setBadgeText({ text: '' });
+
 const replaceMyrecToNeed = () => {
   chrome.storage.sync.get(["s3Selected", "s4Selected", "samlSelected"], (items) => {
     const iframe = document.querySelector("#myrec iframe");
