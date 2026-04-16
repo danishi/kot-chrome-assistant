@@ -2,6 +2,50 @@
 const ALARM_CLOCK_IN = 'reminderClockIn';
 const ALARM_CLOCK_OUT = 'reminderClockOut';
 
+// --- バッジ制御 ---
+const setBadgeOn = () => {
+  chrome.action.setBadgeText({ text: '!' });
+  chrome.action.setBadgeBackgroundColor({ color: '#FF0000' });
+};
+
+const clearBadge = () => {
+  chrome.action.setBadgeText({ text: '' });
+};
+
+// 起動時にリマインダー時刻を過ぎていたらバッジを表示
+const checkBadgeOnStartup = () => {
+  chrome.storage.sync.get([
+    'reminderEnabled',
+    'reminderClockInTime',
+    'reminderClockOutTime'
+  ], (items) => {
+    if (!items.reminderEnabled) return;
+
+    const now = new Date();
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+    let shouldShowBadge = false;
+
+    if (items.reminderClockInTime) {
+      const [h, m] = items.reminderClockInTime.split(':').map(Number);
+      if (currentMinutes >= h * 60 + m) {
+        shouldShowBadge = true;
+      }
+    }
+
+    if (items.reminderClockOutTime) {
+      const [h, m] = items.reminderClockOutTime.split(':').map(Number);
+      if (currentMinutes >= h * 60 + m) {
+        shouldShowBadge = true;
+      }
+    }
+
+    if (shouldShowBadge) {
+      setBadgeOn();
+    }
+  });
+};
+
 const setupReminders = () => {
   chrome.storage.sync.get([
     'reminderEnabled',
@@ -51,8 +95,10 @@ const showNotification = (id, message) => {
 chrome.alarms.onAlarm.addListener((alarm) => {
   if (alarm.name === ALARM_CLOCK_IN) {
     showNotification(ALARM_CLOCK_IN, '出勤打刻の時間です。');
+    setBadgeOn();
   } else if (alarm.name === ALARM_CLOCK_OUT) {
     showNotification(ALARM_CLOCK_OUT, '退勤打刻の時間です。');
+    setBadgeOn();
   }
 });
 
@@ -118,6 +164,12 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     return true;
   }
 
+  if (msg.contentScriptQuery === 'clearBadge') {
+    clearBadge();
+    sendResponse({ 'status': 'success' });
+    return true;
+  }
+
   if (msg.contentScriptQuery === 'testReminder') {
     showNotification('reminderTest', 'これはテスト通知です。打刻リマインダーが正しく動作しています。');
     sendResponse({ 'status': 'success' });
@@ -144,6 +196,7 @@ chrome.runtime.onInstalled.addListener(function () {
     setPopup(!data.openInNewTab);
   });
   setupReminders();
+  checkBadgeOnStartup();
 });
 
 chrome.runtime.onStartup.addListener(function () {
@@ -151,9 +204,11 @@ chrome.runtime.onStartup.addListener(function () {
     setPopup(!data.openInNewTab);
   });
   setupReminders();
+  checkBadgeOnStartup();
 });
 
 chrome.action.onClicked.addListener(function () {
+  clearBadge();
   let myrecUrl = "https://s2.ta.kingoftime.jp/independent/recorder/personal/";
 
   chrome.storage.sync.get(["openInNewTab", "s3Selected", "s4Selected", "samlSelected"], (items) => {
